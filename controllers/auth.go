@@ -58,7 +58,7 @@ func (c Auth) Register(ctx *gin.Context) {
 	// Return the token and the newly created user info
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"user":  user,
+			"user":  user.Transform(),
 			"token": token,
 		},
 	})
@@ -68,11 +68,15 @@ func (c Auth) Register(ctx *gin.Context) {
 func (c Auth) Login(ctx *gin.Context) {
 	var creds models.Credentials
 
-	//if !c.ValidateBindings(ctx, &creds) {
-	//return
-	//}
-	c.ValidateBindings(ctx, &creds)
+	// Validate the request for the handle
+	if err := ctx.ShouldBind(&creds); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errors": err.Error(),
+		})
+		return
+	}
 
+	// Authenticate the user and create a token
 	token, err := new(services.Auth).Authenticate(&creds)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -81,6 +85,7 @@ func (c Auth) Login(ctx *gin.Context) {
 		return
 	}
 
+	// Return the access and refresh token to user
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"token": token,

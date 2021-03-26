@@ -21,20 +21,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type Trip struct {
+type Airport struct {
 	gorm.Model
-	UUID        uuid.UUID `gorm:"type:varchar(36)"`
-	Persist     bool      `gorm:"default:false"`
-	UserID      uint      `gorm:"default:null"`
-	Source      Location  `json:"source" binding:"required"`
-	Destination Location  `json:"destination" binding:"required"`
-	// Relationships
-	Segements []Segement
+	UUID  uuid.UUID `gorm:"type:varchar(36)"`
+	Code  string    `json:"code"`
+	Lat   string    `json:"lat"`
+	Lng   string    `form:"lon" json:"lon"` // to match the api
+	Name  string
+	City  string
+	State string
+	WOEID string
+	TZ    string
 }
 
 // BeforeCreate is a event hook provided by gorm, all the operations specified
 // below are performed before creating a new user.
-func (t *Trip) BeforeCreate(tx *gorm.DB) (err error) {
+func (t *Airport) BeforeCreate(tx *gorm.DB) (err error) {
 	// Create UUID for the model
 	t.UUID = uuid.Must(uuid.NewRandom())
 

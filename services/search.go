@@ -14,27 +14,26 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package core
+package services
 
 import (
+	"github.com/kalkayan/onestop/core"
 	"github.com/kalkayan/onestop/models"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
-type Database struct {
-	Engine *gorm.DB
-}
+type Search struct{}
 
-func (d *Database) Register() {
-	engine, err := gorm.Open(mysql.Open(Config("dbDNS")), &gorm.Config{})
-	if err != nil {
-		panic("Database connection failed")
-	}
-	d.Engine = engine
+func (s *Search) SearchAiportsInCity(l *models.Location) []models.Airport {
+	// This list will be populated with the search
+	var airports []models.Airport
 
-	if Conf["debug"].(bool) {
-		println("Migrating models")
-		d.Engine.AutoMigrate(&models.User{}, &models.Airport{})
-	}
+	// TODO: better search query
+	core.K.DB.Engine.Where("city LIKE ? OR state LIKE ?", "%"+l.City+"%", "%"+l.City+"%").Find(&airports)
+
+	// TODO: sort the search results based on the user's locations
+	//sort.StringSlice(airports, func (a, b models.Airport) bool {
+	//return distance()
+	//})
+
+	return airports
 }

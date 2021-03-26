@@ -30,7 +30,9 @@ func AuthGuard() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		bearer := strings.Split(c.Request.Header.Get("Authorization"), " ")
 		if len(bearer) != 2 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token entry"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Invalid token entry",
+			})
 			return
 		}
 
@@ -47,20 +49,23 @@ func AuthGuard() gin.HandlerFunc {
 
 func Register(r *core.Router) {
 
-	authController := new(controllers.Auth)
-	tripController := new(controllers.Trip)
-	userContriller := new(controllers.User)
+	auth := new(controllers.Auth)
+	user := new(controllers.User)
+	search := new(controllers.Search)
 
 	v1 := r.Engine.Group("v1")
 	{
-		v1.POST("/register", authController.Register)
-		v1.POST("/login", authController.Login)
+		v1.POST("/register", auth.Register)
+		v1.POST("/login", auth.Login)
 
 		private := v1.Group("app")
 		private.Use(AuthGuard())
 		{
-			private.GET("/", userContriller.Me)
-			private.POST("/trip/search", tripController.Search)
+			private.GET("/me", user.Me)
+
+			// Search endpoints
+			private.POST("/search/trip", search.EndToEndTrip)
+			private.POST("/search/airports", search.AirportInCity)
 		}
 	}
 }

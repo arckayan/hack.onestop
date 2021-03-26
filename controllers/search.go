@@ -21,25 +21,32 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kalkayan/onestop/models"
+	"github.com/kalkayan/onestop/services"
 )
 
-type Trip struct{ Controller }
+type Search struct{ Controller }
 
-func (c *Trip) Search(ctx *gin.Context) {
-	var trip models.Trip
+func (c *Search) EndToEndTrip(ctx *gin.Context) {
+
+}
+
+func (c *Search) AirportInCity(ctx *gin.Context) {
+	var location models.Location
 
 	// Validate the request for the handle
-	if err := ctx.ShouldBind(&trip); err != nil {
+	if err := ctx.ShouldBind(&location); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errors": err.Error(),
 		})
 		return
 	}
 
+	// actual searching and sorting
+	airports := new(services.Search).SearchAiportsInCity(&location)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"trip":    trip,
-			"message": "Hello this is the search",
+			"search": airports,
 		},
 	})
 }

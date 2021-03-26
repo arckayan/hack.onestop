@@ -27,7 +27,7 @@ type User struct {
 	UUID     uuid.UUID `gorm:"type:varchar(36)"`
 	Name     string    `form:"name" json:"name" binding:"required"`
 	Email    string    `gorm:"unique;" form:"email" json:"email" binding:"required"`
-	Password string    `form:"password" json:"-" binding:"required"`
+	Password string    `form:"password" binding:"required"`
 
 	// Relationships
 	Trips []Trip

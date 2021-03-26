@@ -14,27 +14,28 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package core
+package seeds
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
+
+	"github.com/kalkayan/onestop/core"
 	"github.com/kalkayan/onestop/models"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
-type Database struct {
-	Engine *gorm.DB
-}
+type Airport struct{}
 
-func (d *Database) Register() {
-	engine, err := gorm.Open(mysql.Open(Config("dbDNS")), &gorm.Config{})
+func (s *Airport) Run() {
+	resp, err := http.Get(core.Config("airportURL"))
 	if err != nil {
-		panic("Database connection failed")
+		panic("Error while reading the airport database file.")
 	}
-	d.Engine = engine
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	airports := []models.Airport{}
+	json.Unmarshal([]byte(body), &airports)
 
-	if Conf["debug"].(bool) {
-		println("Migrating models")
-		d.Engine.AutoMigrate(&models.User{}, &models.Airport{})
-	}
+	core.K.DB.Engine.Create(&airports)
 }

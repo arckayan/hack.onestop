@@ -56,6 +56,8 @@ func Configure() {
 	// Redis
 	Conf["redisDNS"] = fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
 	Conf["redisPassword"] = os.Getenv("REDIS_PASSWORD")
+
+	Conf["airportURL"] = os.Getenv("URL_AIRPORT")
 }
 
 func Config(key string) string {

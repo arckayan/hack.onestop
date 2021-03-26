@@ -14,27 +14,15 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package core
+package models
 
-import (
-	"github.com/kalkayan/onestop/models"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
-type Database struct {
-	Engine *gorm.DB
-}
-
-func (d *Database) Register() {
-	engine, err := gorm.Open(mysql.Open(Config("dbDNS")), &gorm.Config{})
-	if err != nil {
-		panic("Database connection failed")
-	}
-	d.Engine = engine
-
-	if Conf["debug"].(bool) {
-		println("Migrating models")
-		d.Engine.AutoMigrate(&models.User{}, &models.Airport{})
-	}
+type Location struct {
+	gorm.Model
+	Lat    string `binding:"required"`
+	Lng    string `binding:"required"`
+	City   string `binding:"required"`
+	State  string
+	TripID uint
 }
