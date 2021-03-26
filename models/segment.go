@@ -16,12 +16,22 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package models
 
-type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+type Segement struct {
+	gorm.Model
+	UUID   uuid.UUID `gorm:"type:varchar(36)"`
+	TripID uint
 }
 
-type Token struct {
-	Token   string `json:"token"`
-	Expires int64  `json:"expires"`
+// BeforeCreate is a event hook provided by gorm, all the operations specified
+// below are performed before creating a new user.
+func (s *Segement) BeforeCreate(tx *gorm.DB) (err error) {
+	// Create UUID for the model
+	s.UUID = uuid.Must(uuid.NewRandom())
+
+	return nil
 }

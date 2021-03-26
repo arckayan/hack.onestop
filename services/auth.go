@@ -26,11 +26,11 @@ import (
 	"github.com/kalkayan/onestop/models"
 )
 
-// AuthService handles application's all authentication related operations
-type AuthService struct{}
+// Auth handles application's all authentication related operations
+type Auth struct{}
 
 // Authenticate is used to login a user from credentials
-func (s *AuthService) Authenticate(creds *models.Credentials) (*models.AuthenticationToken, error) {
+func (s *Auth) Authenticate(creds *models.Credentials) (*models.Token, error) {
 	var user models.User
 
 	// Check if the user with given email exist or not
@@ -44,53 +44,33 @@ func (s *AuthService) Authenticate(creds *models.Credentials) (*models.Authentic
 	}
 
 	// Create a token which will be further used for authentication (stateless)
-	token, err := s.CreateToken(user.UUID)
+	token, err := s.CreateAccessToken(user.UUID)
 	if err != nil {
 		return nil, errors.New("Unable to create a token")
 	}
-
-	// Start an authentication session (stateless) for the user
-	//if err = s.CreateAuthSession(user.UUID, token); err != nil {
-	//return nil, errors.New("Unable to authenticate")
-	//}
 
 	return token, nil
 }
 
 // CreateToken creates a authentication token for the user
-func (s *AuthService) CreateToken(userUUID uuid.UUID) (
-	*models.AuthenticationToken,
+func (s *Auth) CreateAccessToken(userUUID uuid.UUID) (
+	*models.Token,
 	error,
 ) {
 	var err error
-	token := models.AuthenticationToken{}
+
+	token := models.Token{}
+	token.Expires = time.Now().Add(time.Minute * 60).Unix()
 
 	// Define Access claims and expiry
-	token.AccessExpires = time.Now().Add(time.Minute * 60).Unix()
-	token.AccessUUID = uuid.Must(uuid.NewRandom()).String()
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["uuid"] = token.AccessUUID
 	claims["user"] = userUUID.String()
-	claims["expires"] = token.AccessExpires
+	claims["expires"] = token.Expires
+
 	// Create Access claims and singed token
 	access := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token.AccessToken, err = access.SignedString([]byte(core.Config("secret")))
-	if err != nil {
-		return nil, err
-	}
-
-	// Define Refresh claims and expiry
-	token.RefreshExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
-	token.RefreshUUID = uuid.Must(uuid.NewRandom()).String()
-	claims = jwt.MapClaims{}
-	claims["uuid"] = token.RefreshUUID
-	claims["expires"] = token.RefreshExpires
-	claims["user"] = userUUID.String()
-	// Create Refresh claims and singed token
-	refresh := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token.RefreshToken, err = refresh.SignedString([]byte(core.Config("secret")))
-	if err != nil {
+	if token.Token, err = access.SignedString([]byte(core.Config("secret"))); err != nil {
 		return nil, err
 	}
 
@@ -99,7 +79,7 @@ func (s *AuthService) CreateToken(userUUID uuid.UUID) (
 
 // ValidateTokenAndAuthenticate is the helper for auth guard middleware, it first
 // verifies the token and then check if the claims are valid for the authentication.
-func (s *AuthService) ValidateTokenAndAuthenticate(tokenstr string) (*models.User, error) {
+func (s *Auth) ValidateTokenAndAuthenticate(tokenstr string) (*models.User, error) {
 	// Verify token's signing method
 	token, err := jwt.Parse(tokenstr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

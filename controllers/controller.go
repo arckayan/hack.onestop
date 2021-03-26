@@ -24,13 +24,10 @@ import (
 
 type Controller struct{}
 
-func (c Controller) ValidateBindings(ctx *gin.Context, schema interface{}) bool {
+func (c Controller) ValidateBindings(ctx *gin.Context, schema interface{}) {
 	// Validate the request for the handle
-	err := ctx.ShouldBindJSON(&schema)
-	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-		return false
+	if err := ctx.ShouldBind(&schema); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"errors": err.Error()})
 	}
-
-	return true
+	println(schema)
 }

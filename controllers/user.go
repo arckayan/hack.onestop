@@ -14,14 +14,30 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package models
+package controllers
 
-type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
-}
+import (
+	"net/http"
 
-type Token struct {
-	Token   string `json:"token"`
-	Expires int64  `json:"expires"`
+	"github.com/gin-gonic/gin"
+)
+
+type User struct{ Controller }
+
+func (c *User) Me(ctx *gin.Context) {
+	user, set := ctx.Get("user")
+
+	if set {
+		ctx.JSON(http.StatusOK, gin.H{
+			"data": gin.H{
+				"user": user,
+			},
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusUnauthorized, gin.H{
+		"message": "User has been logged out, please login again",
+	})
 }

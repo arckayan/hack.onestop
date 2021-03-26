@@ -14,14 +14,28 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package models
+package controllers
 
-type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
-}
+import (
+	"net/http"
 
-type Token struct {
-	Token   string `json:"token"`
-	Expires int64  `json:"expires"`
+	"github.com/gin-gonic/gin"
+	"github.com/kalkayan/onestop/models"
+)
+
+type Trip struct{ Controller }
+
+func (c *Trip) Search(ctx *gin.Context) {
+	var trip models.Trip
+
+	//if !c.ValidateBindings(ctx, &trip) {
+	//return
+	//}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"trip":    trip,
+			"message": "Hello this is the search",
+		},
+	})
 }

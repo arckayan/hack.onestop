@@ -15,13 +15,3 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 */
 
 package models
-
-type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
-}
-
-type Token struct {
-	Token   string `json:"token"`
-	Expires int64  `json:"expires"`
-}

@@ -25,11 +25,12 @@ import (
 type User struct {
 	gorm.Model
 	UUID     uuid.UUID `gorm:"type:varchar(36)"`
-	Name     string    `gorm:"default:null" form:"name" binding:"required"`
-	Email    string    `gorm:"unique;" form:"email" binding:"required"`
-	Password string    `form:"password" binding:"required"`
+	Name     string    `form:"name" json:"name" binding:"required"`
+	Email    string    `gorm:"unique;" form:"email" json:"email" binding:"required"`
+	Password string    `form:"password" json:"-" binding:"required"`
 
 	// Relationships
+	Trips []Trip
 }
 
 // BeforeCreate is a event hook provided by gorm, all the operations specified

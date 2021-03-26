@@ -23,9 +23,9 @@ import (
 	"github.com/kalkayan/onestop/models"
 )
 
-type UserService struct{}
+type User struct{}
 
-func (s *UserService) Create(u *models.User) error {
+func (s *User) Create(u *models.User) error {
 	var f int64
 
 	// Check if the User exists or not

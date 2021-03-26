@@ -14,14 +14,23 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package models
+package services
 
-type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
-}
+import (
+	"errors"
 
-type Token struct {
-	Token   string `json:"token"`
-	Expires int64  `json:"expires"`
+	"github.com/kalkayan/onestop/core"
+	"github.com/kalkayan/onestop/models"
+)
+
+type TripService struct{}
+
+func (s *TripService) Create(t *models.Trip) error {
+	core.K.DB.Engine.Create(t)
+
+	if t.ID == 0 {
+		return errors.New("Could not create a user.")
+	}
+
+	return nil
 }

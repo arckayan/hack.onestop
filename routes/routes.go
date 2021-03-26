@@ -34,7 +34,7 @@ func AuthGuard() gin.HandlerFunc {
 			return
 		}
 
-		user, err := new(services.AuthService).ValidateTokenAndAuthenticate(bearer[1])
+		user, err := new(services.Auth).ValidateTokenAndAuthenticate(bearer[1])
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
@@ -47,7 +47,10 @@ func AuthGuard() gin.HandlerFunc {
 
 func Register(r *core.Router) {
 
-	authController := new(controllers.AuthController)
+	authController := new(controllers.Auth)
+	tripController := new(controllers.Trip)
+	userContriller := new(controllers.User)
+
 	v1 := r.Engine.Group("v1")
 	{
 		v1.POST("/register", authController.Register)
@@ -56,13 +59,8 @@ func Register(r *core.Router) {
 		private := v1.Group("app")
 		private.Use(AuthGuard())
 		{
-			private.GET("/", func(c *gin.Context) {
-				user, ok := c.Get("user")
-				if !ok {
-					c.JSON(http.StatusOK, gin.H{"data": "user doesn't exist"})
-				}
-				c.JSON(http.StatusOK, gin.H{"data": user})
-			})
+			private.GET("/", userContriller.Me)
+			private.POST("/trip/search", tripController.Search)
 		}
 	}
 }

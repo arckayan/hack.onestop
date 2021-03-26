@@ -24,39 +24,56 @@ import (
 	"github.com/kalkayan/onestop/services"
 )
 
-type AuthController struct{ Controller }
+type Auth struct{ Controller }
 
 // Register creates and return a new user
-func (c AuthController) Register(ctx *gin.Context) {
+func (c Auth) Register(ctx *gin.Context) {
 	var user models.User
 
-	if !c.ValidateBindings(ctx, &user) {
+	// Validate the request for the handle
+	if err := ctx.ShouldBind(&user); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errors": err.Error(),
+		})
 		return
 	}
 
-	if err := new(services.UserService).Create(&user); err != nil {
+	// Create the User in the database
+	if err := new(services.User).Create(&user); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotAcceptable, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
+	// Authenticate the user and create a token
+	token, err := new(services.Auth).CreateAccessToken(user.UUID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Return the token and the newly created user info
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"user": user.Transform(),
+			"user":  user,
+			"token": token,
 		},
 	})
 }
 
 // Login authenticates a user from credentials
-func (c AuthController) Login(ctx *gin.Context) {
+func (c Auth) Login(ctx *gin.Context) {
 	var creds models.Credentials
 
-	if !c.ValidateBindings(ctx, &creds) {
-		return
-	}
+	//if !c.ValidateBindings(ctx, &creds) {
+	//return
+	//}
+	c.ValidateBindings(ctx, &creds)
 
-	token, err := new(services.AuthService).Authenticate(&creds)
+	token, err := new(services.Auth).Authenticate(&creds)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),
