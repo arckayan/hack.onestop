@@ -65,15 +65,29 @@ func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) [
 		},
 	}
 	core.K.DB.Engine.Create(&trips)
+	fmt.Println(trips)
+
+	c := models.Cab{
+		Segment: models.Segment{TripID: trips[0].ID},
+	}
 
 	f := models.Flight{
 		Segment: models.Segment{TripID: trips[0].ID},
 	}
 	core.K.DB.Engine.Create(&f)
+	core.K.DB.Engine.Create(&c)
+
+	fmt.Println("-----*=========*-----")
+	fmt.Println(c.Segment)
+	fmt.Println("-----*=========*-----")
+	fmt.Println(f.Segment)
+
+	fmt.Println("-----*=========*-----")
 	core.K.DB.Engine.Model(&trips[0]).Association("Segments").Append([]models.Segment{
-		f.Segment,
+		f.Segment, c.Segment,
 	})
 
+	fmt.Println(trips[0])
 	return trips
 
 	/*

@@ -66,6 +66,7 @@ func main() {
 			&models.Location{},
 			&models.Segment{},
 			&models.Flight{},
+			&models.Cab{},
 			// Add Schema Models to the list
 		)
 	}

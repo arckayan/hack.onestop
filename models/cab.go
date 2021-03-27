@@ -17,15 +17,14 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
 type Cab struct {
 	gorm.Model
-	From    Location  `json:"from" binding:"required"`
-	To      Location  `json:"to" binding:"required"`
-	Time    time.Time `binding:"required"`
-	Segment Segment   `gorm:"polymorphic:Vendor"`
+	FromLat string
+	FromLng string
+	ToLat   string
+	ToLng   string
+	Segment Segment `gorm:"polymorphic:Vendor"`
 }

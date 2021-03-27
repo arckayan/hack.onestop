@@ -16,7 +16,14 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package models
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+	"reflect"
+
+	"gorm.io/gorm"
+)
+
+var Type = make(map[string]reflect.Type)
 
 type Location struct {
 	gorm.Model
@@ -26,4 +33,10 @@ type Location struct {
 	State    string
 	TripID   uint  `gorm:"default:null"`
 	Airports []int `gorm:"type:text"`
+}
+
+func RegisterTypes() {
+	for _, t := range []interface{}{Cab{}, Flight{}} {
+		Type[fmt.Sprintf("%T", t)] = reflect.TypeOf(t)
+	}
 }

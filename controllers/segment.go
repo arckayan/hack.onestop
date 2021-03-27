@@ -27,7 +27,7 @@ type Segment struct{ Controller }
 
 func (c *Segment) Find(ctx *gin.Context) {
 	type SegmentURI struct {
-		UUID string `uri:"uuid" binding:"required"`
+		ID string `uri:"uuid" binding:"required"`
 	}
 	var s SegmentURI
 
@@ -38,7 +38,7 @@ func (c *Segment) Find(ctx *gin.Context) {
 		return
 	}
 
-	segment, err := new(services.Segment).Find(s.UUID)
+	segment, v, err := new(services.Segment).Find(s.ID)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"msg": err.Error()})
 		return
@@ -47,6 +47,7 @@ func (c *Segment) Find(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"search": segment,
+			"vendor": v,
 		},
 	})
 

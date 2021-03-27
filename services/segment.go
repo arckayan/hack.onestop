@@ -26,12 +26,21 @@ import (
 type Segment struct {
 }
 
-func (s *Segment) Find(UUID string) (*models.Segment, error) {
+func (s *Segment) Find(ID string) (*models.Segment, interface{}, error) {
 	var segment models.Segment
 
-	if err := core.K.DB.Engine.Where("uuid = ?", UUID).First(&segment).Error; err != nil {
-		return nil, errors.New("Segment does not exist.")
+	if err := core.K.DB.Engine.Where("id = ?", ID).First(&segment).Error; err != nil {
+		return nil, nil, errors.New("Segment does not exist.")
 	}
 
-	return &segment, nil
+	//v := reflect.New(models.Type["models."+strings.Title(segment.VendorType[:len(segment.VendorType)-1])]).Elem().Interface()
+	if segment.VendorType == "flights" {
+		var v models.Flight
+		core.K.DB.Engine.Where("ID = ?", segment.VendorID).First(&v)
+		return &segment, v, nil
+	} else {
+		var v models.Cab
+		core.K.DB.Engine.Where("ID = ?", segment.VendorID).First(&v)
+		return &segment, v, nil
+	}
 }
