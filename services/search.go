@@ -46,11 +46,13 @@ func (s *Search) SearchAiportsInCity(l *models.Location) []models.Airport {
 func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) []models.Trip {
 
 	// Call flight api for the best available offers
-	//tequila := SearchFlightOptions(&ts.Source, &ts.Destination, ts.FromDate, ts.ToDate)
+	tequila := SearchFlightOptions(&ts.Source, &ts.Destination, ts.FromDate, ts.ToDate)
 
 	// Create a trip
-	trips := []models.Trip{
-		{
+	var trips []models.Trip
+	for _, shot := range tequila {
+		// Create a trip
+		trip := models.Trip{
 			Source: models.Location{
 				Lat:  ts.Source.Lat,
 				Lng:  ts.Source.Lng,
@@ -62,32 +64,38 @@ func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) [
 				City: ts.Destination.City,
 			},
 			UserID: user.ID,
-		},
+		}
+		core.K.DB.Engine.Create(&trip)
+
+		// segments table
+		var s []models.Segment
+
+		c := models.Cab{
+			Segment: models.Segment{TripID: trip.ID},
+		}
+		core.K.DB.Engine.Create(&c)
+		s = append(s, c.Segment)
+
+		for _, flight := range shot.Route {
+			f := models.Flight{
+				CityCodeFrom: flight.CityCodeFrom,
+				CityCodeTo:   flight.CityCodeTo,
+				Segment:      models.Segment{TripID: trip.ID},
+			}
+			core.K.DB.Engine.Create(&f)
+			s = append(s, f.Segment)
+		}
+
+		c2 := models.Cab{
+			Segment: models.Segment{TripID: trip.ID},
+		}
+		core.K.DB.Engine.Create(&c2)
+		s = append(s, c2.Segment)
+
+		core.K.DB.Engine.Model(&trip).Association("Segments").Append(s)
+		trips = append(trips, trip)
 	}
-	core.K.DB.Engine.Create(&trips)
-	fmt.Println(trips)
 
-	c := models.Cab{
-		Segment: models.Segment{TripID: trips[0].ID},
-	}
-
-	f := models.Flight{
-		Segment: models.Segment{TripID: trips[0].ID},
-	}
-	core.K.DB.Engine.Create(&f)
-	core.K.DB.Engine.Create(&c)
-
-	fmt.Println("-----*=========*-----")
-	fmt.Println(c.Segment)
-	fmt.Println("-----*=========*-----")
-	fmt.Println(f.Segment)
-
-	fmt.Println("-----*=========*-----")
-	core.K.DB.Engine.Model(&trips[0]).Association("Segments").Append([]models.Segment{
-		f.Segment, c.Segment,
-	})
-
-	fmt.Println(trips[0])
 	return trips
 
 	/*
