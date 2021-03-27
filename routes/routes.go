@@ -42,7 +42,7 @@ func AuthGuard() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user", user.Transform())
+		c.Set("user", user)
 		c.Next()
 	}
 }
@@ -52,6 +52,7 @@ func Register(r *core.Router) {
 	auth := new(controllers.Auth)
 	user := new(controllers.User)
 	search := new(controllers.Search)
+	segment := new(controllers.Segment)
 
 	v1 := r.Engine.Group("v1")
 	{
@@ -64,8 +65,11 @@ func Register(r *core.Router) {
 			private.GET("/me", user.Me)
 
 			// Search endpoints
-			private.POST("/search/trip", search.EndToEndTrip)
+			private.POST("/search/trip", search.EndToEndTrips)
 			private.POST("/search/airports", search.AirportInCity)
+
+			// Segment endpoints
+			private.GET("/segment/:uuid", segment.Find)
 		}
 	}
 }

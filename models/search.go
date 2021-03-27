@@ -16,13 +16,47 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package models
 
-import "gorm.io/gorm"
+//import (
+//"time"
+//)
 
-type Location struct {
-	gorm.Model
-	Lat    string `binding:"required"`
-	Lng    string `binding:"required"`
-	City   string `binding:"required"`
-	State  string
-	TripID uint
+type TripSearch struct {
+	Source      Location `json:"source" binding:"required"`
+	Destination Location `json:"destination" binding:"required"`
+	FromDate    string
+	ToDate      string
+	//FromDate    time.Time `json:"from_date" binding:"required"`
+	//ToDate      time.Time `json:"to_date" binding:"required"`
+}
+
+type TequilaData struct {
+	Duration struct {
+		Departure uint
+		Return    uint
+		Total     uint
+	}
+	FlyFrom      string
+	CityFrom     string
+	CityCodeFrom string
+	CountryFrom  struct {
+		Code string
+		Name string
+	}
+	FlyTo      string
+	CityTo     string
+	CityCodeTo string
+	CountryTo  struct {
+		Code string
+		Name string
+	}
+	Distance       uint
+	Price          uint     `json:"price"`
+	Route          []Flight `json:"route"`
+	LocalArrival   string   `json:"local_arrival"`
+	UTCArrival     string   `json:"utc_arrival"`
+	LocalDeparture string   `json:"local_departure"`
+	UTCDeparture   string   `json:"utc_departure"`
+}
+type Tequila struct {
+	Data []TequilaData `json:"data"`
 }

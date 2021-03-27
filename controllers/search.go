@@ -26,10 +26,32 @@ import (
 
 type Search struct{ Controller }
 
-func (c *Search) EndToEndTrip(ctx *gin.Context) {
+// EndToEndTrip searches all the trip routes for the user -- including flight,
+// train, and buses all accomodated by cabs.
+func (c *Search) EndToEndTrips(ctx *gin.Context) {
+	var ts models.TripSearch
 
+	// Validate the request for the handle
+	if err := ctx.ShouldBind(&ts); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errors": err.Error(),
+		})
+		return
+	}
+
+	// searching and optimizing
+	user, _ := ctx.Get("user")
+	trips := new(services.Search).SearchEndToEndTrips(&ts, user.(*models.User))
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"search": trips,
+		},
+	})
 }
 
+// AirportInCity is used for setting the airports (source and destination) for
+// End-to-End search engine.
 func (c *Search) AirportInCity(ctx *gin.Context) {
 	var location models.Location
 

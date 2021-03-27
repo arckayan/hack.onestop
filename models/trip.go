@@ -17,6 +17,8 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -28,8 +30,11 @@ type Trip struct {
 	UserID      uint      `gorm:"default:null"`
 	Source      Location  `json:"source" binding:"required"`
 	Destination Location  `json:"destination" binding:"required"`
+	Date        string    `gorm:"default:null"`
+	Expires     time.Time
+
 	// Relationships
-	Segements []Segement
+	Segments []Segment
 }
 
 // BeforeCreate is a event hook provided by gorm, all the operations specified
@@ -37,6 +42,9 @@ type Trip struct {
 func (t *Trip) BeforeCreate(tx *gorm.DB) (err error) {
 	// Create UUID for the model
 	t.UUID = uuid.Must(uuid.NewRandom())
+
+	// Expire the search trips after 20 mins
+	t.Expires = time.Now().Add(time.Minute * 20)
 
 	return nil
 }

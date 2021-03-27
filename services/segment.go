@@ -15,3 +15,23 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 */
 
 package services
+
+import (
+	"errors"
+
+	"github.com/kalkayan/onestop/core"
+	"github.com/kalkayan/onestop/models"
+)
+
+type Segment struct {
+}
+
+func (s *Segment) Find(UUID string) (*models.Segment, error) {
+	var segment models.Segment
+
+	if err := core.K.DB.Engine.Where("uuid = ?", UUID).First(&segment).Error; err != nil {
+		return nil, errors.New("Segment does not exist.")
+	}
+
+	return &segment, nil
+}

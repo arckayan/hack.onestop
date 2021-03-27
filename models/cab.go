@@ -17,23 +17,15 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 import (
-	"github.com/google/uuid"
+	"time"
+
 	"gorm.io/gorm"
 )
 
-type Segment struct {
+type Cab struct {
 	gorm.Model
-	UUID       uuid.UUID `gorm:"type:varchar(36)"`
-	TripID     uint
-	VendorID   uint
-	VendorType string
-}
-
-// BeforeCreate is a event hook provided by gorm, all the operations specified
-// below are performed before creating a new user.
-func (s *Segment) BeforeCreate(tx *gorm.DB) (err error) {
-	// Create UUID for the model
-	s.UUID = uuid.Must(uuid.NewRandom())
-
-	return nil
+	From    Location  `json:"from" binding:"required"`
+	To      Location  `json:"to" binding:"required"`
+	Time    time.Time `binding:"required"`
+	Segment Segment   `gorm:"polymorphic:Vendor"`
 }

@@ -15,3 +15,22 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 */
 
 package models
+
+import "gorm.io/gorm"
+
+type Flight struct {
+	gorm.Model
+	CityTo         string   `json:"cityTo"`
+	CityFrom       string   `json:"cityFrom"`
+	CityCodeFrom   string   `json:"cityCodeFrom"`
+	CityCodeTo     string   `json:"cityCodeTo"`
+	FlyTo          string   `json:"flyTo"`
+	FlyFrom        string   `json:"flyFrom"`
+	Airline        string   `json:"airline"`
+	FlightNo       string   `json:"flight_no"`
+	LocalArrival   string   `json:"local_arrival"`
+	UTCArrival     string   `json:"utc_arrival"`
+	LocalDeparture string   `json:"local_departure"`
+	UTCDeparture   string   `json:"utc_departure"`
+	Segment       Segment `gorm:"polymorphic:Vendor"`
+}
