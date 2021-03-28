@@ -17,8 +17,6 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kalkayan/onestop/models"
 	"github.com/kalkayan/onestop/services"
@@ -33,21 +31,15 @@ func (c *Search) EndToEndTrips(ctx *gin.Context) {
 
 	// Validate the request for the handle
 	if err := ctx.ShouldBind(&ts); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errors": err.Error(),
-		})
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
 	// searching and optimizing
 	user, _ := ctx.Get("user")
-	trips := new(services.Search).SearchEndToEndTrips(&ts, user.(*models.User))
+	trips, _ := new(services.Search).SearchEndToEndTrips(&ts, user.(*models.User))
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"search": trips,
-		},
-	})
+	c.OK(ctx, gin.H{"search": trips})
 }
 
 // AirportInCity is used for setting the airports (source and destination) for
@@ -57,18 +49,12 @@ func (c *Search) AirportInCity(ctx *gin.Context) {
 
 	// Validate the request for the handle
 	if err := ctx.ShouldBind(&location); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errors": err.Error(),
-		})
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
 	// actual searching and sorting
 	airports := new(services.Search).SearchAiportsInCity(&location)
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"search": airports,
-		},
-	})
+	c.OK(ctx, gin.H{"search": airports})
 }

@@ -17,38 +17,27 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kalkayan/onestop/services"
 )
 
 type Segment struct{ Controller }
 
+// Find retrieve the resource from the params
 func (c *Segment) Find(ctx *gin.Context) {
-	type SegmentURI struct {
-		ID string `uri:"uuid" binding:"required"`
-	}
-	var s SegmentURI
+	var s ParamID
 
+	// Validate the request for the handle
 	if err := ctx.ShouldBindUri(&s); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"msg": err.Error(),
-		})
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
 	segment, v, err := new(services.Segment).Find(s.ID)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"msg": err.Error()})
+		c.NotFound(ctx, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"search": segment,
-			"vendor": v,
-		},
-	})
-
+	c.OK(ctx, gin.H{"search": segment, "vendor": v})
 }

@@ -1,1 +1,0 @@
-{"errors":[{"status":400,"code":32171,"title":"MANDATORY DATA MISSING","detail":"This field must be filled.","source":{"parameter":"destination"}}]}

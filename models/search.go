@@ -16,10 +16,6 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package models
 
-//import (
-//"time"
-//)
-
 type TripSearch struct {
 	Source      Location `json:"source" binding:"required"`
 	Destination Location `json:"destination" binding:"required"`
@@ -50,7 +46,7 @@ type TequilaData struct {
 		Name string
 	}
 	Distance       uint
-	Price          uint     `json:"price"`
+	Price          float64  `json:"price"`
 	Route          []Flight `json:"route"`
 	LocalArrival   string   `json:"local_arrival"`
 	UTCArrival     string   `json:"utc_arrival"`

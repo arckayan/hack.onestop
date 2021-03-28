@@ -17,26 +17,20 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 import (
-	"fmt"
-	"reflect"
-
 	"gorm.io/gorm"
 )
 
-var Type = make(map[string]reflect.Type)
+type Coordinate struct {
+	Lat float64 `binding:"required"`
+	Lng float64 `binding:"required"`
+}
 
 type Location struct {
 	gorm.Model
-	Lat      string `binding:"required"`
-	Lng      string `binding:"required"`
-	City     string `binding:"required"`
 	State    string
-	TripID   uint  `gorm:"default:null"`
-	Airports []int `gorm:"type:text"`
-}
-
-func RegisterTypes() {
-	for _, t := range []interface{}{Cab{}, Flight{}} {
-		Type[fmt.Sprintf("%T", t)] = reflect.TypeOf(t)
-	}
+	City     string  `binding:"required"`
+	Lat      float64 `binding:"required"`
+	Lng      float64 `binding:"required"`
+	TripID   uint    `gorm:"default:null"`
+	Airports []int   `gorm:"type:text"`
 }

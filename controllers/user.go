@@ -17,27 +17,20 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
 type User struct{ Controller }
 
+// Me return the current authenticated user
 func (c *User) Me(ctx *gin.Context) {
 	user, set := ctx.Get("user")
 
-	if set {
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": gin.H{
-				"user": user,
-			},
-		})
-
+	// Abort the request if the user is not set
+	if !set {
+		c.Unauthorized(ctx, "User has been logged out, please login again")
 		return
 	}
 
-	ctx.JSON(http.StatusUnauthorized, gin.H{
-		"message": "User has been logged out, please login again",
-	})
+	c.OK(ctx, gin.H{"user": user})
 }

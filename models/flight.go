@@ -32,5 +32,5 @@ type Flight struct {
 	UTCArrival     string   `json:"utc_arrival"`
 	LocalDeparture string   `json:"local_departure"`
 	UTCDeparture   string   `json:"utc_departure"`
-	Segment       Segment `gorm:"polymorphic:Vendor"`
+	Segment        Segment  `gorm:"polymorphic:Vendor"`
 }

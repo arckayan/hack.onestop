@@ -14,18 +14,21 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 */
 
-package models
+package services
 
 import (
-	"gorm.io/gorm"
+	"github.com/kalkayan/onestop/core"
+	"github.com/kalkayan/onestop/models"
 )
 
-type Cab struct {
-	gorm.Model
-	FromLat       float64
-	FromLng       float64
-	ToLat         float64
-	ToLng         float64
-	ExpectedPrice float64
-	Segment       Segment `gorm:"polymorphic:Vendor"`
+type Airport struct{}
+
+func (s *Airport) Find(ID int) (*models.Airport, error) {
+	var airport models.Airport
+
+	if err := core.K.DB.Engine.Model(&airport).Where("ID = ?", ID).First(&airport).Error; err != nil {
+		return nil, err
+	}
+
+	return &airport, nil
 }

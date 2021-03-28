@@ -26,7 +26,8 @@ import (
 type Segment struct {
 }
 
-func (s *Segment) Find(ID string) (*models.Segment, interface{}, error) {
+// Find the segment from id
+func (s *Segment) Find(ID uint) (*models.Segment, interface{}, error) {
 	var segment models.Segment
 
 	if err := core.K.DB.Engine.Where("id = ?", ID).First(&segment).Error; err != nil {

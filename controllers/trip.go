@@ -17,29 +17,24 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
-	"github.com/kalkayan/onestop/models"
+	"github.com/kalkayan/onestop/services"
 )
 
 type Trip struct{ Controller }
 
-func (c *Trip) Search(ctx *gin.Context) {
-	var trip models.Trip
+// Find retrieve the resource from the params
+func (c *Trip) Find(ctx *gin.Context) {
+	var t ParamUUID
 
 	// Validate the request for the handle
-	if err := ctx.ShouldBind(&trip); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errors": err.Error(),
-		})
+	if err := ctx.ShouldBindUri(&t); err != nil {
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"trip":    trip,
-			"message": "Hello this is the search",
-		},
-	})
+	// find the trip and segements
+	trip, segments, _ := new(services.Trip).Find(t.UUID)
+
+	c.OK(ctx, gin.H{"trip": trip, "segments": segments})
 }

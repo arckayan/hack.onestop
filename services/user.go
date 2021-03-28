@@ -25,6 +25,7 @@ import (
 
 type User struct{}
 
+// Create a resource from the input data
 func (s *User) Create(u *models.User) error {
 	var f int64
 
@@ -34,11 +35,11 @@ func (s *User) Create(u *models.User) error {
 		return errors.New("User already exists.")
 	}
 
-	// Create a new user
+	// Create a new user and save in the database
 	core.K.DB.Engine.Create(u)
-
 	if u.ID == 0 {
 		return errors.New("Could not create a user.")
 	}
+
 	return nil
 }

@@ -25,13 +25,14 @@ import (
 
 type Trip struct {
 	gorm.Model
-	UUID        uuid.UUID `gorm:"type:varchar(36)"`
-	Persist     bool      `gorm:"default:false"`
-	UserID      uint      `gorm:"default:null"`
-	Source      Location  `json:"source" binding:"required"`
-	Destination Location  `json:"destination" binding:"required"`
-	Date        string    `gorm:"default:null"`
-	Expires     time.Time
+	UUID           uuid.UUID `gorm:"type:varchar(36)"`
+	Persist        bool      `gorm:"default:false"`
+	UserID         uint      `gorm:"default:null"`
+	Source         Location  `json:"source" binding:"required"`
+	Destination    Location  `json:"destination" binding:"required"`
+	Date           string    `gorm:"default:null"`
+	EstimatedPrice float64   `json:"estimated_price"`
+	Expires        time.Time
 
 	// Relationships
 	Segments []Segment

@@ -36,109 +36,55 @@ func (s *Search) SearchAiportsInCity(l *models.Location) []models.Airport {
 	core.K.DB.Engine.Where("city LIKE ? OR state LIKE ?", "%"+l.City+"%", "%"+l.City+"%").Find(&airports)
 
 	// TODO: sort the search results based on the user's locations
-	//sort.StringSlice(airports, func (a, b models.Airport) bool {
-	//return distance()
-	//})
 
 	return airports
 }
 
-func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) []models.Trip {
+func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) (*[]models.Trip, error) {
+	//
+	from := models.Coordinate{Lat: ts.Source.Lat, Lng: ts.Source.Lng}
+	to := models.Coordinate{Lat: ts.Destination.Lat, Lng: ts.Destination.Lng}
+	//
+	fromAirport, _ := new(Airport).Find(ts.Source.Airports[0])
+	toAiport, _ := new(Airport).Find(ts.Destination.Airports[0])
 
 	// Call flight api for the best available offers
-	tequila := SearchFlightOptions(&ts.Source, &ts.Destination, ts.FromDate, ts.ToDate)
+	tequila := SearchFlightOptions(fromAirport, toAiport, ts.FromDate, ts.ToDate)
 
-	// Create a trip
+	// User's coordinates
 	var trips []models.Trip
+
 	for _, shot := range tequila {
 		// Create a trip
-		trip := models.Trip{
-			Source: models.Location{
-				Lat:  ts.Source.Lat,
-				Lng:  ts.Source.Lng,
-				City: ts.Source.City,
-			},
-			Destination: models.Location{
-				Lat:  ts.Destination.Lat,
-				Lng:  ts.Destination.Lng,
-				City: ts.Destination.City,
-			},
-			UserID: user.ID,
-		}
-		core.K.DB.Engine.Create(&trip)
+		trip, _ := new(Trip).Create(&ts.Source, &ts.Destination, ts.FromDate, user)
 
 		// segments table
 		var s []models.Segment
 
-		c := models.Cab{
-			Segment: models.Segment{TripID: trip.ID},
-		}
-		core.K.DB.Engine.Create(&c)
-		s = append(s, c.Segment)
+		// Create a cab from location to airports
+		c1, _ := new(Cab).Create(&from, &models.Coordinate{Lat: fromAirport.Lat, Lng: fromAirport.Lng}, trip.ID)
+		s = append(s, c1.Segment)
 
 		for _, flight := range shot.Route {
-			f := models.Flight{
-				CityCodeFrom: flight.CityCodeFrom,
-				CityCodeTo:   flight.CityCodeTo,
-				Segment:      models.Segment{TripID: trip.ID},
-			}
-			core.K.DB.Engine.Create(&f)
+			f, _ := new(Flight).Create(&flight, trip.ID)
 			s = append(s, f.Segment)
 		}
 
-		c2 := models.Cab{
-			Segment: models.Segment{TripID: trip.ID},
-		}
-		core.K.DB.Engine.Create(&c2)
+		c2, _ := new(Cab).Create(&models.Coordinate{Lat: toAiport.Lat, Lng: toAiport.Lng}, &to, trip.ID)
 		s = append(s, c2.Segment)
 
+		trip.EstimatedPrice = shot.Price + c1.ExpectedPrice + c2.ExpectedPrice
+		core.K.DB.Engine.Save(&trip)
+
 		core.K.DB.Engine.Model(&trip).Association("Segments").Append(s)
-		trips = append(trips, trip)
+		trips = append(trips, *trip)
 	}
 
-	return trips
-
-	/*
-		for _, f := range tequila {
-			source := ts.Source
-			destination := ts.Destination
-			trip := models.Trip{
-				Persist:     false,
-				Source:      source,
-				Destination: destination,
-				Date:        ts.FromDate,
-				Expires:     time.Now().Add(time.Minute * 5),
-			}
-			core.K.DB.Engine.Create(&trip)
-			fmt.Println(f)
-
-			// flight
-			//f := flight.Route[0]
-			//s := models.Segment{TripID: trip.ID}
-			//f.Segment = s
-			//core.K.DB.Engine.Model(&trip).Association("Segments").Append([]models.Segment{s})
-
-			trips = append(trips, trip)
-		}
-
-	*/
-	// Compare distance from user's pickup to source airport
-
-	// Compare distance from destination airport to user's drop off
-
-	// Generate an Itenary
-
-	return trips
+	return &trips, nil
 }
 
-func SearchFlightOptions(source *models.Location,
-	destination *models.Location, ft string, tt string) []models.TequilaData {
-	// Get Airports from Airport's Ids
-	var from models.Airport
-	var to models.Airport
-
-	core.K.DB.Engine.First(&from, source.Airports[0])
-	core.K.DB.Engine.First(&to, destination.Airports[0])
+func SearchFlightOptions(from *models.Airport,
+	to *models.Airport, ft string, tt string) []models.TequilaData {
 
 	flightAPI := fmt.Sprintf(
 		"%s/search?fly_from=%s&fly_to=%s&dateFrom=%s&dateTo=%s&curr=%s",
@@ -149,6 +95,8 @@ func SearchFlightOptions(source *models.Location,
 		tt,
 		"INR",
 	)
+
+	println(flightAPI)
 
 	req, _ := http.NewRequest("GET", flightAPI, nil)
 	req.Header.Add("apikey", core.Config("kiwiAPIKey"))

@@ -39,10 +39,12 @@ Reinventing traveling with one-stop traveling
 */
 
 func main() {
-	// options for the servers
+	// Application's development runtime options for running several tasks req-
+	// uired for setup of environment and providers.
 	seed := flag.Bool("seed", false, "Seed the database")
 	migrate := flag.Bool("migrate", false, "Enables auto-migration of the database schemas")
 
+	// Parse the flags into the application
 	flag.Parse()
 
 	// Configure the core of the application -- this includes loading the
@@ -67,7 +69,10 @@ func main() {
 			&models.Segment{},
 			&models.Flight{},
 			&models.Cab{},
-			// Add Schema Models to the list
+			/*
+				Add schema models here that needed to be migrated to the
+				database.
+			*/
 		)
 	}
 

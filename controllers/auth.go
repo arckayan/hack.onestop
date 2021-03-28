@@ -17,8 +17,6 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kalkayan/onestop/models"
 	"github.com/kalkayan/onestop/services"
@@ -32,36 +30,24 @@ func (c Auth) Register(ctx *gin.Context) {
 
 	// Validate the request for the handle
 	if err := ctx.ShouldBind(&user); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errors": err.Error(),
-		})
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
 	// Create the User in the database
 	if err := new(services.User).Create(&user); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotAcceptable, gin.H{
-			"error": err.Error(),
-		})
+		c.NotAcceptable(ctx, err.Error())
 		return
 	}
 
 	// Authenticate the user and create a token
 	token, err := new(services.Auth).CreateAccessToken(user.UUID)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		c.NotAcceptable(ctx, err.Error())
 		return
 	}
 
-	// Return the token and the newly created user info
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"user":  user.Transform(),
-			"token": token,
-		},
-	})
+	c.Created(ctx, gin.H{"user": user.Transform(), "token": token})
 }
 
 // Login authenticates a user from credentials
@@ -70,25 +56,16 @@ func (c Auth) Login(ctx *gin.Context) {
 
 	// Validate the request for the handle
 	if err := ctx.ShouldBind(&creds); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errors": err.Error(),
-		})
+		c.UnprocessableEntity(ctx, err.Error())
 		return
 	}
 
 	// Authenticate the user and create a token
 	token, err := new(services.Auth).Authenticate(&creds)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		c.NotAcceptable(ctx, err.Error())
 		return
 	}
 
-	// Return the access and refresh token to user
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"token": token,
-		},
-	})
+	c.OK(ctx, gin.H{"token": token})
 }

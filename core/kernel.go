@@ -16,8 +16,6 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package core
 
-import "github.com/kalkayan/onestop/models"
-
 // Kernel binds all the services and providers in one place
 type Kernel struct {
 	Router Router
@@ -48,7 +46,6 @@ func (k *Kernel) Register() {
 	//
 	k.DB.Register()
 
-	models.RegisterTypes()
 }
 
 // Run listen for the incoming requests and process them
