@@ -92,6 +92,7 @@ func Register(r *core.Router) {
 			private.GET("/trips", trip.All)
 			private.GET("/trip/:uuid", trip.Find)
 			private.PUT("/trip/:uuid", trip.Update)
+			private.PUT("/trip/:uuid/book", trip.Book)
 
 			// Segment endpoints
 			private.GET("/segment/:uuid", segment.Find)

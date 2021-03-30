@@ -110,3 +110,14 @@ func (t *Trip) Update(UUID string, data *models.Trip) error {
 
 	return nil
 }
+
+// Distance
+func (t *Trip) Book(trip *models.Trip) error {
+	trip.Persist = true
+
+	if err := core.K.DB.Engine.Save(&trip).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

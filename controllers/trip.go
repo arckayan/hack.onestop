@@ -67,3 +67,22 @@ func (c *Trip) Update(ctx *gin.Context) {
 
 	c.OK(ctx, "The func will be soon implemented.")
 }
+
+func (c *Trip) Book(ctx *gin.Context) {
+	var t ParamUUID
+
+	// Validate the request for the handle
+	if err := ctx.ShouldBindUri(&t); err != nil {
+		c.UnprocessableEntity(ctx, err.Error())
+		return
+	}
+
+	trip, err := new(services.Trip).Find(t.UUID)
+	if err != nil {
+		c.NotFound(ctx, err.Error())
+	}
+	if err := new(services.Trip).Book(trip); err != nil {
+		c.NotAcceptable(ctx, err.Error())
+	}
+	c.OK(ctx, "The trip has been booked")
+}
