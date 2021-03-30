@@ -89,6 +89,7 @@ func Register(r *core.Router) {
 			private.POST("/search/airports", search.AirportInCity)
 
 			// Trip endpoints
+			private.GET("/trips", trip.All)
 			private.GET("/trip/:uuid", trip.Find)
 			private.PUT("/trip/:uuid", trip.Update)
 

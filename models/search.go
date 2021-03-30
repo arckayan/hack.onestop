@@ -55,6 +55,7 @@ type TequilaData struct {
 	LocalDeparture time.Time `json:"local_departure"`
 	UTCDeparture   time.Time `json:"utc_departure"`
 }
+
 type Tequila struct {
 	Data []TequilaData `json:"data"`
 }

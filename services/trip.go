@@ -26,6 +26,15 @@ import (
 
 type Trip struct{}
 
+// Find all the user's trips
+func (s *Trip) All(user *models.User) []models.Trip {
+	var trips []models.Trip
+
+	core.K.DB.Engine.Model(&user).Association("Trips").Find(&trips)
+
+	return trips
+}
+
 // Create a trip from the search :
 func (s *Trip) Create(from *models.Location, to *models.Location, fromDate string, user *models.User) (*models.Trip, error) {
 	// Process the arguments and create a trip object

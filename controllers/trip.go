@@ -24,6 +24,12 @@ import (
 
 type Trip struct{ Controller }
 
+func (c *Trip) All(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+	trips := new(services.Trip).All(user.(*models.User))
+	c.OK(ctx, gin.H{"trips": trips})
+}
+
 // Find retrieve the resource from the params
 func (c *Trip) Find(ctx *gin.Context) {
 	var t ParamUUID

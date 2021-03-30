@@ -31,7 +31,7 @@ type Flight struct {
 	FlyTo          string    `json:"flyTo"`
 	FlyFrom        string    `json:"flyFrom"`
 	Airline        string    `json:"airline"`
-	FlightNo       string    `json:"flight_no"`
+	FlightNo       int       `json:"flight_no"`
 	LocalArrival   time.Time `json:"local_arrival"`
 	UTCArrival     time.Time `json:"utc_arrival"`
 	LocalDeparture time.Time `json:"local_departure"`
