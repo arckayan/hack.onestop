@@ -29,9 +29,7 @@ type Trip struct{}
 // Find all the user's trips
 func (s *Trip) All(user *models.User) []models.Trip {
 	var trips []models.Trip
-
-	core.K.DB.Engine.Model(&user).Association("Trips").Find(&trips)
-
+	core.K.DB.Engine.Model(&trips).Where("user_id = ? and persist = ?", user.ID, true).Find(&trips)
 	return trips
 }
 
