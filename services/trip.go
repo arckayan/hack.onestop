@@ -29,7 +29,7 @@ type Trip struct{}
 // Find all the user's trips
 func (s *Trip) All(user *models.User) []models.Trip {
 	var trips []models.Trip
-	core.K.DB.Engine.Model(&trips).Where("user_id = ? and persist = ?", user.ID, true).Find(&trips)
+	core.K.DB.Engine.Preload("Source").Preload("Destination").Preload("Segments").Model(&trips).Where("user_id = ? and persist = ?", user.ID, true).Find(&trips)
 	return trips
 }
 
@@ -63,7 +63,7 @@ func (t *Trip) Find(UUID string) (*models.Trip, error) {
 	var trip models.Trip
 
 	// find the trip from the uuid
-	if err := core.K.DB.Engine.Model(&trip).Where("uuid = ?", UUID).First(&trip).Error; err != nil {
+	if err := core.K.DB.Engine.Preload("Source").Preload("Destination").Model(&trip).Where("uuid = ?", UUID).First(&trip).Error; err != nil {
 		return nil, errors.New("Trip with uuid does not exist")
 	}
 
