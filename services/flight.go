@@ -38,6 +38,7 @@ func (s *Flight) Create(f *models.Flight, tripID uint) (*models.Flight, error) {
 		UTCArrival:     f.UTCArrival,
 		LocalDeparture: f.LocalDeparture,
 		UTCDeparture:   f.UTCDeparture,
+		Duration:       int(f.UTCArrival.Sub(f.UTCDeparture).Minutes()),
 		Segment:        models.Segment{TripID: tripID},
 	}
 

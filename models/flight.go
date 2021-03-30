@@ -24,6 +24,7 @@ import (
 
 type Flight struct {
 	gorm.Model
+	Duration       int
 	CityTo         string    `json:"cityTo"`
 	CityFrom       string    `json:"cityFrom"`
 	CityCodeFrom   string    `json:"cityCodeFrom"`
