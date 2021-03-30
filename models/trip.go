@@ -33,6 +33,7 @@ type Trip struct {
 	Date           string    `gorm:"default:null"`
 	EstimatedPrice float64   `json:"estimated_price"`
 	Expires        time.Time
+	Duration       float64
 
 	// Relationships
 	Segments []Segment

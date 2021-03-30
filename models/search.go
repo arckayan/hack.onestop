@@ -16,6 +16,8 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 
 package models
 
+import "time"
+
 type TripSearch struct {
 	Source      Location `json:"source" binding:"required"`
 	Destination Location `json:"destination" binding:"required"`
@@ -46,12 +48,12 @@ type TequilaData struct {
 		Name string
 	}
 	Distance       uint
-	Price          float64  `json:"price"`
-	Route          []Flight `json:"route"`
-	LocalArrival   string   `json:"local_arrival"`
-	UTCArrival     string   `json:"utc_arrival"`
-	LocalDeparture string   `json:"local_departure"`
-	UTCDeparture   string   `json:"utc_departure"`
+	Price          float64   `json:"price"`
+	Route          []Flight  `json:"route"`
+	LocalArrival   time.Time `json:"local_arrival"`
+	UTCArrival     time.Time `json:"utc_arrival"`
+	LocalDeparture time.Time `json:"local_departure"`
+	UTCDeparture   time.Time `json:"utc_departure"`
 }
 type Tequila struct {
 	Data []TequilaData `json:"data"`

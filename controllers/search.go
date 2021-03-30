@@ -17,6 +17,8 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kalkayan/onestop/models"
 	"github.com/kalkayan/onestop/services"
@@ -32,6 +34,7 @@ func (c *Search) EndToEndTrips(ctx *gin.Context) {
 	// Validate the request for the handle
 	if err := ctx.ShouldBind(&ts); err != nil {
 		c.UnprocessableEntity(ctx, err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 

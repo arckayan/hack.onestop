@@ -17,6 +17,8 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -26,6 +28,10 @@ type Cab struct {
 	FromLng       float64
 	ToLat         float64
 	ToLng         float64
+	ArrivalTime   time.Time
+	DepartureTime time.Time
 	ExpectedPrice float64
+	Distance      float64
+	ExpectedTime  float64
 	Segment       Segment `gorm:"polymorphic:Vendor"`
 }

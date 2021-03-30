@@ -71,6 +71,8 @@ func Register(r *core.Router) {
 	// Register the routes and the routes groups in the kernel's router
 	v1 := r.Engine.Group("v1")
 	{
+		v1.GET("/", func(c *gin.Context) { c.JSON(200, "hi, this is onestop.") })
+
 		// Authentication endpoints
 		v1.POST("/register", auth.Register)
 		v1.POST("/login", auth.Login)
@@ -88,9 +90,11 @@ func Register(r *core.Router) {
 
 			// Trip endpoints
 			private.GET("/trip/:uuid", trip.Find)
+			private.PUT("/trip/:uuid", trip.Update)
 
 			// Segment endpoints
 			private.GET("/segment/:uuid", segment.Find)
+			private.PUT("/segment/:uuid", segment.Update)
 		}
 	}
 }

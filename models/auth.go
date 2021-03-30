@@ -17,8 +17,8 @@ Authors: Manish Sahani          <rec.manish.sahani@gmail.com>
 package models
 
 type Credentials struct {
-	Email    string `binding:"required" form:"email"`
-	Password string `binding:"required" form:"password"`
+	Email    string `binding:"required" json:"email"`
+	Password string `binding:"required" json:"password"`
 }
 
 type Token struct {

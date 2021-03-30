@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kalkayan/onestop/models"
 	"github.com/kalkayan/onestop/services"
 )
 
@@ -34,7 +35,29 @@ func (c *Trip) Find(ctx *gin.Context) {
 	}
 
 	// find the trip and segements
-	trip, segments, _ := new(services.Trip).Find(t.UUID)
+	trip, segments, err := new(services.Trip).FindWithSegments(t.UUID)
+	if err != nil {
+		c.NotFound(ctx, err.Error())
+		return
+	}
 
 	c.OK(ctx, gin.H{"trip": trip, "segments": segments})
+}
+
+func (c *Trip) Update(ctx *gin.Context) {
+	var d models.Trip
+	var t ParamUUID
+
+	// Validate the request for the handle
+	if err := ctx.ShouldBindUri(&t); err != nil {
+		c.UnprocessableEntity(ctx, err.Error())
+		return
+	}
+	// Validate the repuest binding
+	if err := ctx.ShouldBindJSON(&d); err != nil {
+		c.UnprocessableEntity(ctx, err.Error())
+		return
+	}
+
+	c.OK(ctx, "The func will be soon implemented.")
 }

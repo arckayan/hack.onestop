@@ -62,7 +62,8 @@ func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) (
 		var s []models.Segment
 
 		// Create a cab from location to airports
-		c1, _ := new(Cab).Create(&from, &models.Coordinate{Lat: fromAirport.Lat, Lng: fromAirport.Lng}, trip.ID)
+		c1, _ := new(Cab).Create(&from,
+			&models.Coordinate{Lat: fromAirport.Lat, Lng: fromAirport.Lng}, shot.UTCDeparture, false, trip.ID)
 		s = append(s, c1.Segment)
 
 		for _, flight := range shot.Route {
@@ -70,10 +71,17 @@ func (s *Search) SearchEndToEndTrips(ts *models.TripSearch, user *models.User) (
 			s = append(s, f.Segment)
 		}
 
-		c2, _ := new(Cab).Create(&models.Coordinate{Lat: toAiport.Lat, Lng: toAiport.Lng}, &to, trip.ID)
+		c2, _ := new(Cab).Create(
+			&models.Coordinate{Lat: toAiport.Lat, Lng: toAiport.Lng},
+			&to,
+			shot.UTCArrival,
+			true,
+			trip.ID)
 		s = append(s, c2.Segment)
 
 		trip.EstimatedPrice = shot.Price + c1.ExpectedPrice + c2.ExpectedPrice
+		trip.Duration = c1.ExpectedTime + c2.ExpectedTime + float64(shot.Duration.Total)
+
 		core.K.DB.Engine.Save(&trip)
 
 		core.K.DB.Engine.Model(&trip).Association("Segments").Append(s)
@@ -87,7 +95,7 @@ func SearchFlightOptions(from *models.Airport,
 	to *models.Airport, ft string, tt string) []models.TequilaData {
 
 	flightAPI := fmt.Sprintf(
-		"%s/search?fly_from=%s&fly_to=%s&dateFrom=%s&dateTo=%s&curr=%s",
+		"%s/search?fly_from=%s&fly_to=%s&dateFrom=%s&dateTo=%s&curr=%s&limit=7",
 		core.Config("kiwiURL"),
 		from.Code,
 		to.Code,
@@ -95,8 +103,6 @@ func SearchFlightOptions(from *models.Airport,
 		tt,
 		"INR",
 	)
-
-	println(flightAPI)
 
 	req, _ := http.NewRequest("GET", flightAPI, nil)
 	req.Header.Add("apikey", core.Config("kiwiAPIKey"))

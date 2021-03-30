@@ -51,23 +51,55 @@ type Res struct {
 	Vendor  interface{}
 }
 
-// Find the trip from uuid
-func (t *Trip) Find(UUID string) (*models.Trip, []Res, error) {
+// Find the resource
+func (t *Trip) Find(UUID string) (*models.Trip, error) {
 	var trip models.Trip
-	var segments []models.Segment
 
 	// find the trip from the uuid
-	if err := core.K.DB.Engine.Model(&trip).Where("uuid = ?", UUID).First(&trip).Association("Segments").Find(&segments).Error; err != nil {
-		return nil, nil, errors.New("Trip with uuid does not exist")
+	if err := core.K.DB.Engine.Model(&trip).Where("uuid = ?", UUID).First(&trip).Error; err != nil {
+		return nil, errors.New("Trip with uuid does not exist")
 	}
 
-	core.K.DB.Engine.Model(&trip).Association("Segments").Find(&segments)
+	return &trip, nil
+}
+
+// Find the trip from uuid
+func (t *Trip) FindWithSegments(UUID string) (*models.Trip, []Res, error) {
+	// Find the trip
+	trip, err := t.Find(UUID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var segments []models.Segment
 	var result []Res
+
+	// Find the Segments
+	core.K.DB.Engine.Model(&trip).Association("Segments").Find(&segments)
+
+	// Find the Vendor and format the result
 	for _, s := range segments {
 		_, v, _ := new(Segment).Find(s.ID)
 		r := Res{Segment: s, Vendor: v}
 		result = append(result, r)
 	}
 
-	return &trip, result, nil
+	return trip, result, nil
+}
+
+// Update the resource
+func (t *Trip) Update(UUID string, data *models.Trip) error {
+	// Find the trip
+	trip, err := t.Find(UUID)
+	if err != nil {
+		return err
+	}
+
+	// Update the data and save TODO: data Validation
+	trip.Persist = data.Persist
+	if err := core.K.DB.Engine.Save(&trip).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
