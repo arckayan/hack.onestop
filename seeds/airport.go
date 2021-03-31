@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/kalkayan/onestop/core"
 	"github.com/kalkayan/onestop/models"
@@ -34,8 +35,34 @@ func (s *Airport) Run() {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+
+	type airport struct {
+		Code  string `json:"code"`
+		Lat   string `json:"lat" binding:"required"`
+		Lng   string `form:"lon" json:"lon"` // to match the api
+		Name  string
+		City  string
+		State string
+		WOEID string
+		TZ    string
+	}
+	data := []airport{}
 	airports := []models.Airport{}
-	json.Unmarshal([]byte(body), &airports)
+	json.Unmarshal([]byte(body), &data)
+	for _, item := range data {
+		lat, _ := strconv.ParseFloat(item.Lat, 64)
+		lng, _ := strconv.ParseFloat(item.Lng, 64)
+		airports = append(airports, models.Airport{
+			Code:  item.Code,
+			Lat:   lat,
+			Lng:   lng,
+			Name:  item.Name,
+			City:  item.City,
+			State: item.State,
+			WOEID: item.WOEID,
+			TZ:    item.TZ,
+		})
+	}
 
 	core.K.DB.Engine.Create(&airports)
 }

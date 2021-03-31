@@ -25,7 +25,7 @@ type Airport struct {
 	gorm.Model
 	UUID  uuid.UUID `gorm:"type:varchar(36)"`
 	Code  string    `json:"code"`
-	Lat   float64   `json:"lat"`
+	Lat   float64   `json:"lat" binding:"required"`
 	Lng   float64   `form:"lon" json:"lon"` // to match the api
 	Name  string
 	City  string
